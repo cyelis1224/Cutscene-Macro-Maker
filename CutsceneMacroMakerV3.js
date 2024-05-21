@@ -181,7 +181,7 @@ const addCameraPositionAction = (existingAction = null) => {
       copy: {
         icon: '<i class="fas fa-copy"></i>',
         label: "Copy Current Screen Position",
-        callback: html => {
+        callback: () => {
           updateCurrentPosition();
           return false; // Prevent the dialog from closing
         }
@@ -221,6 +221,15 @@ const addCameraPositionAction = (existingAction = null) => {
   });
 
   dialog.render(true);
+
+  // Adding custom click event for "Copy Current Screen Position" button
+  setTimeout(() => {
+    const copyButton = dialog.element.find('button:contains("Copy Current Screen Position")');
+    copyButton.click((e) => {
+      e.preventDefault(); // Prevent the default behavior
+      updateCurrentPosition();
+    });
+  }, 100);
 };
 
 const addSwitchSceneAction = (existingAction = null) => {
