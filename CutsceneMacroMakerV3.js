@@ -154,9 +154,9 @@ const addCameraPositionAction = (existingAction = null) => {
     $("#cameraZoom").val(currentZoom);
   };
 
-  addDialogAction(
-    "Camera Position Action",
-    `
+  const dialog = new Dialog({
+    title: "Camera Position Action",
+    content: `
       <form>
         <div class="form-group">
           <label for="cameraX">Camera X:</label>
@@ -177,31 +177,49 @@ const addCameraPositionAction = (existingAction = null) => {
       </form>
       <p>Specify the camera position and zoom level, or copy the current screen position.</p>
     `,
-    html => {
-      const x = parseFloat(html.find("#cameraX").val());
-      const y = parseFloat(html.find("#cameraY").val());
-      const scale = parseFloat(html.find("#cameraZoom").val());
-      const duration = parseInt(html.find("#panDuration").val());
-      const params = { x, y, scale, duration };
-      if (existingAction) {
-        updateAction(existingAction.id, params, `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`);
-      } else {
-        const actionId = generateUniqueId();
-        cutsceneActions.push({ id: actionId, description: `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`, type: "camera", params });
+    buttons: {
+      copy: {
+        label: "Copy Current Screen Position",
+        callback: html => {
+          updateCurrentPosition();
+          return false; // Prevent the dialog from closing
+        }
+      },
+      ok: {
+        label: "OK",
+        callback: html => {
+          const x = parseFloat(html.find("#cameraX").val());
+          const y = parseFloat(html.find("#cameraY").val());
+          const scale = parseFloat(html.find("#cameraZoom").val());
+          const duration = parseInt(html.find("#panDuration").val());
+          const params = { x, y, scale, duration };
+          if (existingAction) {
+            updateAction(existingAction.id, params, `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`);
+          } else {
+            const actionId = generateUniqueId();
+            cutsceneActions.push({ id: actionId, description: `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`, type: "camera", params });
+          }
+          updateActionList();
+        }
+      },
+      cancel: {
+        label: "Cancel",
+        callback: () => {
+          openInitialDialog();
+        }
       }
-      updateActionList();
     },
-    !!existingAction
-  );
+    default: "ok",
+    render: html => {
+      console.log("Dialog rendered: Camera Position Action");
+      setTimeout(() => {
+        dialog.element[0].style.top = initialDialogPosition.top;
+        dialog.element[0].style.left = initialDialogPosition.left;
+      }, 0);
+    }
+  });
 
-  // Add the Copy Current Screen Position button functionality
-  $(".dialog-buttons").prepend(`
-    <button id="copyCurrentPosition" style="margin-right: 10px;">Copy Current Screen Position</button>
-  `);
-  $("#copyCurrentPosition").click(updateCurrentPosition);
-
-  // Initialize current position
-  updateCurrentPosition();
+  dialog.render(true);
 };
 
 const addSwitchSceneAction = (existingAction = null) => {
