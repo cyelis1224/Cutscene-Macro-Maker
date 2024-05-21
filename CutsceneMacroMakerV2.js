@@ -1,93 +1,123 @@
 let cutsceneActions = [];
 
-function openInitialDialog() {
-  let d = new Dialog({
-    title: "Cutscene Macro Maker",
-    content: `
-    <style>
-        .cutscene-maker-buttons {
+function addDialogAction(title, content, callback) {
+    const dialog = new Dialog({
+      title: title,
+      content: content,
+      buttons: {
+        ok: {
+          label: "OK",
+          callback: callback
+        },
+        cancel: {
+          label: "Cancel",
+          callback: () => openInitialDialog()
+        }
+      },
+      default: "ok",
+      render: html => {
+        // Position the dialog on the right-hand side of the screen
+        setTimeout(() => {
+          dialog.element[0].style.top = "25vh";
+          dialog.element[0].style.left = "65vw";
+        }, 0);
+      }
+    });
+    dialog.render(true);
+  }
+  
+  function openInitialDialog() {
+    const d = new Dialog({
+      title: "Cutscene Macro Maker",
+      content: `
+        <style>
+          .cutscene-maker-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-        }
-        .cutscene-maker-button {
+          }
+          .cutscene-maker-button {
             text-align: center;
             padding: 5px;
             border: 1px solid #ccc;
             cursor: pointer;
-        }
-        .cutscene-maker-finish {
-            grid-column: 1 / -1;
+          }
+          .cutscene-maker-finish {
+            grid-column: 1 / -1; 
             text-align: center;
             padding: 5px;
             border: 1px solid #ccc;
             cursor: pointer;
-        }
-    </style>
-    <div class="cutscene-maker-buttons">
-        <div class="cutscene-maker-button" id="cameraButton">Camera</div>
-        <div class="cutscene-maker-button" id="sceneButton">Switch Scene</div>
-        <div class="cutscene-maker-button" id="movementButton">Token Movement</div>
-        <div class="cutscene-maker-button" id="showhideButton">Show/Hide Token</div>
-        <div class="cutscene-maker-button" id="chatButton">Chat</div>
-        <div class="cutscene-maker-button" id="branchButton">Conditional Branch</div>
-        <div class="cutscene-maker-button" id="flashButton">Screen Flash</div>
-        <div class="cutscene-maker-button" id="shakeButton">Screen Shake</div>
-        <div class="cutscene-maker-button" id="tileButton">Tile Movement</div>
-        <div class="cutscene-maker-button" id="doorButton">Door State</div>
-        <div class="cutscene-maker-button" id="lightButton">Light State</div>
-        <div class="cutscene-maker-button" id="ambientButton">Ambient Sound State</div>
-        <div class="cutscene-maker-button" id="imageButton">Show Image</div>
-        <div class="cutscene-maker-button" id="animationButton">Play Animation</div>
-        <div class="cutscene-maker-button" id="soundButton">Play Sound</div>
-        <div class="cutscene-maker-button" id="playlistButton">Change Playlist</div>
-        <div class="cutscene-maker-button" id="fadeoutButton">Fade Out</div>
-        <div class="cutscene-maker-button" id="fadeinButton">Fade In</div>
-        <div class="cutscene-maker-button" id="hideUIButton">Hide UI</div>
-        <div class="cutscene-maker-button" id="showUIButton">Show UI</div>
-        <div class="cutscene-maker-button" id="effectsButton">Weather/Particle Effects</div>
-        <div class="cutscene-maker-button" id="roomKeyButton">Location Banner</div>
-        <div class="cutscene-maker-button" id="macroButton">Run Macro</div>
-        <div class="cutscene-maker-button" id="waitButton">Wait</div>
-        <div class="cutscene-maker-finish" id="finishButton">Export Macro</div>
-    </div>
-    `,
-    buttons: {},
-    render: html => {
-      const closeDialogAndExecute = actionFunction => {
-        d.close();
-        actionFunction();
-      };
-      html.find("#cameraButton").click(() => closeDialogAndExecute(addCameraPositionAction));
-      html.find("#sceneButton").click(() => closeDialogAndExecute(addSwitchSceneAction));
-      html.find("#chatButton").click(() => closeDialogAndExecute(addChatCommandAction));
-      html.find("#movementButton").click(() => closeDialogAndExecute(addTokenMovementAction));
-      html.find("#showhideButton").click(() => closeDialogAndExecute(addHideToggleAction));
-      html.find("#branchButton").click(() => closeDialogAndExecute(addConditionalBranchAction));
-      html.find("#flashButton").click(() => closeDialogAndExecute(addScreenFlashAction));
-      html.find("#shakeButton").click(() => closeDialogAndExecute(addScreenShakeAction));
-      html.find("#tileButton").click(() => closeDialogAndExecute(addTileMovementAction));
-      html.find("#macroButton").click(() => closeDialogAndExecute(addRunMacroAction));
-      html.find("#waitButton").click(() => closeDialogAndExecute(addWaitAction));
-      html.find("#doorButton").click(() => closeDialogAndExecute(addDoorStateAction));
-      html.find("#lightButton").click(() => closeDialogAndExecute(addLightStateAction));
-      html.find("#ambientButton").click(() => closeDialogAndExecute(addAmbientSoundStateAction));
-      html.find("#effectsButton").click(() => closeDialogAndExecute(addWeatherEffectAction));
-      html.find("#imageButton").click(() => closeDialogAndExecute(addImageDisplayAction));
-      html.find("#animationButton").click(() => closeDialogAndExecute(addAnimationAction));
-      html.find("#soundButton").click(() => closeDialogAndExecute(addPlaySoundAction));
-      html.find("#playlistButton").click(() => closeDialogAndExecute(addPlayPlaylistAction));
-      html.find("#fadeoutButton").click(() => closeDialogAndExecute(addFadeOutAction));
-      html.find("#fadeinButton").click(() => closeDialogAndExecute(addFadeInAction));
-      html.find("#hideUIButton").click(() => closeDialogAndExecute(addHideUIAction));
-      html.find("#showUIButton").click(() => closeDialogAndExecute(addShowUIAction));
-      html.find("#roomKeyButton").click(() => closeDialogAndExecute(addRoomKeyAction));
-      html.find("#finishButton").click(() => closeDialogAndExecute(outputCutsceneScript));
-    }
-  });
-  d.render(true);
-}
-
+          }
+        </style>
+        <div class="cutscene-maker-buttons">
+          <div class="cutscene-maker-button" id="cameraButton">Camera</div>
+          <div class="cutscene-maker-button" id="sceneButton">Switch Scene</div>
+          <div class="cutscene-maker-button" id="movementButton">Token Movement</div>
+          <div class="cutscene-maker-button" id="showhideButton">Show/Hide Token</div>
+          <div class="cutscene-maker-button" id="chatButton">Chat</div>
+          <div class="cutscene-maker-button" id="branchButton">Conditional Branch</div>
+          <div class="cutscene-maker-button" id="flashButton">Screen Flash</div>
+          <div class="cutscene-maker-button" id="shakeButton">Screen Shake</div>
+          <div class="cutscene-maker-button" id="tileButton">Tile Movement</div>
+          <div class="cutscene-maker-button" id="doorButton">Door State</div>
+          <div class="cutscene-maker-button" id="lightButton">Light State</div>
+          <div class="cutscene-maker-button" id="ambientButton">Ambient Sound State</div>
+          <div class="cutscene-maker-button" id="imageButton">Show Image</div>
+          <div class="cutscene-maker-button" id="animationButton">Play Animation</div>
+          <div class="cutscene-maker-button" id="soundButton">Play Sound</div>
+          <div class="cutscene-maker-button" id="playlistButton">Change Playlist</div>
+          <div class="cutscene-maker-button" id="fadeoutButton">Fade Out</div>
+          <div class="cutscene-maker-button" id="fadeinButton">Fade In</div>
+          <div class="cutscene-maker-button" id="hideUIButton">Hide UI</div>
+          <div class="cutscene-maker-button" id="showUIButton">Show UI</div>
+          <div class="cutscene-maker-button" id="effectsButton">Weather/Particle Effects</div>
+          <div class="cutscene-maker-button" id="roomKeyButton">Location Banner</div>
+          <div class="cutscene-maker-button" id="macroButton">Run Macro</div>
+          <div class="cutscene-maker-button" id="waitButton">Wait</div>
+          <div class="cutscene-maker-finish" id="finishButton">Export Macro</div>
+        </div>
+      `,
+      buttons: {},
+      render: html => {
+        const closeDialogAndExecute = actionFunction => {
+          d.close();
+          actionFunction();
+        };
+        html.find("#cameraButton").click(() => closeDialogAndExecute(addCameraPositionAction));
+        html.find("#sceneButton").click(() => closeDialogAndExecute(addSwitchSceneAction));
+        html.find("#movementButton").click(() => closeDialogAndExecute(addTokenMovementAction));
+        html.find("#showhideButton").click(() => closeDialogAndExecute(addHideToggleAction));
+        html.find("#chatButton").click(() => closeDialogAndExecute(addChatCommandAction));
+        html.find("#branchButton").click(() => closeDialogAndExecute(addConditionalBranchAction));
+        html.find("#flashButton").click(() => closeDialogAndExecute(addScreenFlashAction));
+        html.find("#shakeButton").click(() => closeDialogAndExecute(addScreenShakeAction));
+        html.find("#tileButton").click(() => closeDialogAndExecute(addTileMovementAction));
+        html.find("#doorButton").click(() => closeDialogAndExecute(addDoorStateAction));
+        html.find("#lightButton").click(() => closeDialogAndExecute(addLightStateAction));
+        html.find("#ambientButton").click(() => closeDialogAndExecute(addAmbientSoundStateAction));
+        html.find("#effectsButton").click(() => closeDialogAndExecute(addWeatherEffectAction));
+        html.find("#imageButton").click(() => closeDialogAndExecute(addImageDisplayAction));
+        html.find("#animationButton").click(() => closeDialogAndExecute(addAnimationAction));
+        html.find("#soundButton").click(() => closeDialogAndExecute(addPlaySoundAction));
+        html.find("#playlistButton").click(() => closeDialogAndExecute(addPlayPlaylistAction));
+        html.find("#fadeoutButton").click(() => closeDialogAndExecute(addFadeOutAction));
+        html.find("#fadeinButton").click(() => closeDialogAndExecute(addFadeInAction));
+        html.find("#hideUIButton").click(() => closeDialogAndExecute(addHideUIAction));
+        html.find("#showUIButton").click(() => closeDialogAndExecute(addShowUIAction));
+        html.find("#roomKeyButton").click(() => closeDialogAndExecute(addRoomKeyAction));
+        html.find("#finishButton").click(() => closeDialogAndExecute(outputCutsceneScript));
+        
+        // Position the initial dialog
+        setTimeout(() => {
+          d.element[0].style.top = "25vh";
+          d.element[0].style.left = "75vw";
+        }, 0);
+      }
+    });
+    d.render(true);
+  }
+  
 function addDialogAction(title, formContent, callback) {
   new Dialog({
     title: title,
@@ -155,10 +185,37 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
-  }  
-
+  }
+  
+  function addDialogAction(title, content, callback) {
+    const dialog = new Dialog({
+      title: title,
+      content: content,
+      buttons: {
+        ok: {
+          label: "OK",
+          callback: callback
+        },
+        cancel: {
+          label: "Cancel",
+          callback: () => openInitialDialog()
+        }
+      },
+      default: "ok",
+      render: html => {
+        // Position the dialog on the right-hand side of the screen
+        setTimeout(() => {
+          dialog.element[0].style.top = "25vh";
+          dialog.element[0].style.left = "75vw";
+        }, 0);
+      }
+    });
+    dialog.render(true);
+  }
+  
   function addSwitchSceneAction() {
     addDialogAction(
       "Switch Scene",
@@ -218,24 +275,29 @@ function addCameraPositionAction() {
             <input type="checkbox" id="teleport" name="teleport" style="margin-top: 5px;">
             <p style="font-size: 0.8em; margin-top: 5px;">Instantly move to the new position without animation.</p>
           </div>
+          <div class="form-group">
+            <label for="tokenRotation">Token Rotation (in degrees):</label>
+            <input type="number" id="tokenRotation" name="tokenRotation" value="${selectedToken.data.rotation}" step="1" style="width: 100%;">
+          </div>
         </form>
       `,
       html => {
         const newPosition = { x: selectedToken.x, y: selectedToken.y };
+        const newRotation = parseFloat(html.find("#tokenRotation").val());
         const animatePan = html.find("#animatePan")[0].checked;
         const teleport = html.find("#teleport")[0].checked;
         let tokenMovementScript;
         if (teleport) {
           tokenMovementScript = `
             // Token Teleport Action
-            // This script instantly teleports the selected token to a new position without animation.
+            // This script instantly teleports the selected token to a new position and rotation without animation.
             (async function() {
               try {
                 // Get the token object using its ID.
                 const token = canvas.tokens.get("${selectedToken.id}");
                 if (token) {
-                  // Update the token's position without animation.
-                  await token.document.update({ x: ${newPosition.x}, y: ${newPosition.y} }, { animate: false });
+                  // Update the token's position and rotation without animation.
+                  await token.document.update({ x: ${newPosition.x}, y: ${newPosition.y}, rotation: ${newRotation} }, { animate: false });
                 }
               } catch (error) {
                 console.error("Error in token teleport action:", error);
@@ -245,14 +307,14 @@ function addCameraPositionAction() {
         } else {
           tokenMovementScript = `
             // Token Movement Action
-            // This script moves the selected token to a new position with animation.
+            // This script moves the selected token to a new position and rotation with animation.
             (async function() {
               try {
                 // Get the token object using its ID.
                 const token = canvas.tokens.get("${selectedToken.id}");
                 if (token) {
-                  // Update the token's position with animation.
-                  await token.document.update({ x: ${newPosition.x}, y: ${newPosition.y} });
+                  // Update the token's position and rotation with animation.
+                  await token.document.update({ x: ${newPosition.x}, y: ${newPosition.y}, rotation: ${newRotation} });
                   ${animatePan ? `
                   // Animate the camera pan to follow the token's new position.
                   await canvas.animatePan({ x: ${newPosition.x}, y: ${newPosition.y}, duration: 1000 });
@@ -267,10 +329,11 @@ function addCameraPositionAction() {
           `;
         }
         cutsceneActions.push(tokenMovementScript.trim());
+        ui.notifications.info(`Token ${teleport ? "teleport" : "movement"} action added to the cutscene.`);
       }
     );
   }
-
+  
   function addHideToggleAction() {
     if (canvas.tokens.controlled.length !== 1) {
       ui.notifications.warn("Please select exactly one token.");
