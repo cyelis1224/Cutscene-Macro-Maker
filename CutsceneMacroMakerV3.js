@@ -142,31 +142,66 @@ const openInitialDialog = () => {
 const addCameraPositionAction = (existingAction = null) => {
   console.log("Add Camera Position Action");
   const action = existingAction || {};
+  let currentX, currentY, currentZoom;
+
+  const updateCurrentPosition = () => {
+    const viewPosition = canvas.scene._viewPosition;
+    currentX = viewPosition.x;
+    currentY = viewPosition.y;
+    currentZoom = viewPosition.scale;
+    $("#cameraX").val(currentX);
+    $("#cameraY").val(currentY);
+    $("#cameraZoom").val(currentZoom);
+  };
+
   addDialogAction(
     "Camera Position Action",
     `
       <form>
         <div class="form-group">
+          <label for="cameraX">Camera X:</label>
+          <input type="number" id="cameraX" name="cameraX" value="${action.params ? action.params.x : ''}" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label for="cameraY">Camera Y:</label>
+          <input type="number" id="cameraY" name="cameraY" value="${action.params ? action.params.y : ''}" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label for="cameraZoom">Zoom Level:</label>
+          <input type="number" id="cameraZoom" name="cameraZoom" value="${action.params ? action.params.scale : ''}" step="0.1" style="width: 100%;">
+        </div>
+        <div class="form-group">
           <label for="panDuration">Pan Duration (in milliseconds):</label>
           <input type="number" id="panDuration" name="panDuration" value="${action.params ? action.params.duration : 1000}" step="100" style="width: 100%;">
         </div>
       </form>
-      <p>Current position and zoom level will be used.</p>
+      <p>Specify the camera position and zoom level, or copy the current screen position.</p>
     `,
     html => {
-      const duration = html.find("#panDuration").val();
-      const viewPosition = canvas.scene._viewPosition;
-      const params = { x: viewPosition.x, y: viewPosition.y, scale: viewPosition.scale, duration };
+      const x = parseFloat(html.find("#cameraX").val());
+      const y = parseFloat(html.find("#cameraY").val());
+      const scale = parseFloat(html.find("#cameraZoom").val());
+      const duration = parseInt(html.find("#panDuration").val());
+      const params = { x, y, scale, duration };
       if (existingAction) {
-        updateAction(existingAction.id, params, `Camera Position (Duration: ${duration}ms)`);
+        updateAction(existingAction.id, params, `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`);
       } else {
         const actionId = generateUniqueId();
-        cutsceneActions.push({ id: actionId, description: `Camera Position (Duration: ${duration}ms)`, type: "camera", params });
+        cutsceneActions.push({ id: actionId, description: `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`, type: "camera", params });
       }
       updateActionList();
     },
     !!existingAction
   );
+
+  // Add the Copy Current Screen Position button functionality
+  $(".dialog-buttons").prepend(`
+    <button id="copyCurrentPosition" style="margin-right: 10px;">Copy Current Screen Position</button>
+  `);
+  $("#copyCurrentPosition").click(updateCurrentPosition);
+
+  // Initialize current position
+  updateCurrentPosition();
 };
 
 const addSwitchSceneAction = (existingAction = null) => {
