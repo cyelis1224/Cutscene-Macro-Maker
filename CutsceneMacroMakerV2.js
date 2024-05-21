@@ -106,6 +106,8 @@ function addDialogAction(title, content, callback) {
         html.find("#hideUIButton").click(() => closeDialogAndExecute(addHideUIAction));
         html.find("#showUIButton").click(() => closeDialogAndExecute(addShowUIAction));
         html.find("#roomKeyButton").click(() => closeDialogAndExecute(addRoomKeyAction));
+        html.find("#macroButton").click(() => closeDialogAndExecute(addRunMacroAction));
+        html.find("#waitButton").click(() => closeDialogAndExecute(addWaitAction));
         html.find("#finishButton").click(() => closeDialogAndExecute(outputCutsceneScript));
         
         // Position the initial dialog
@@ -249,6 +251,7 @@ function addCameraPositionAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }  
@@ -330,6 +333,7 @@ function addCameraPositionAction() {
         }
         cutsceneActions.push(tokenMovementScript.trim());
         ui.notifications.info(`Token ${teleport ? "teleport" : "movement"} action added to the cutscene.`);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -403,6 +407,7 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -552,6 +557,7 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -573,6 +579,7 @@ function addWaitAction() {
         // Wait for specific duration in milliseconds. 
         await new Promise(resolve => setTimeout(resolve, ${duration}));
       `.trim());
+      openInitialDialog(); // Reopen the initial dialog
     }
   );
 }
@@ -633,6 +640,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -697,6 +705,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -741,6 +750,7 @@ function addScreenFlashAction() {
           })();
         `;
         cutsceneActions.push(tileMovementScript.trim());
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -857,6 +867,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -897,6 +908,7 @@ function addScreenFlashAction() {
               }
             })();
           `);
+          openInitialDialog(); // Reopen the initial dialog
         } else {
           ui.notifications.error("Ambient sound not found with ID: " + soundId);
         }
@@ -960,6 +972,7 @@ function addScreenFlashAction() {
             }
           ]);
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1006,6 +1019,7 @@ function addScreenFlashAction() {
               }
             })();
           `);
+          openInitialDialog(); // Reopen the initial dialog
         } else {
           ui.notifications.warn("No URL provided. Action not added.");
         }
@@ -1080,6 +1094,7 @@ function addScreenFlashAction() {
         }
   
         cutsceneActions.push(sequencerScript);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }  
@@ -1119,6 +1134,7 @@ function addScreenFlashAction() {
             }
           })();
         `.trim());
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1167,6 +1183,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1206,6 +1223,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1245,6 +1263,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1288,6 +1307,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1331,6 +1351,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
@@ -1403,6 +1424,7 @@ function addScreenFlashAction() {
             }
           })();
         `);
+        openInitialDialog(); // Reopen the initial dialog
       }
     );
   }
