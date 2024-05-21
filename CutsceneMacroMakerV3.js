@@ -179,6 +179,7 @@ const addCameraPositionAction = (existingAction = null) => {
     `,
     buttons: {
       copy: {
+        icon: '<i class="fas fa-copy"></i>',
         label: "Copy Current Screen Position",
         callback: html => {
           updateCurrentPosition();
