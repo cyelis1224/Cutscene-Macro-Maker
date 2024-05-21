@@ -98,7 +98,7 @@ function addDialogAction(title, formContent, callback) {
         callback: html => {
           try {
             callback(html);
-            ui.notifications.info(`${title} action added to the cutscene.`);
+            ui.notifications.info(`${title} added to the cutscene.`);
           } catch (error) {
             console.error(`Error adding ${title} action:`, error);
             ui.notifications.error(`Failed to add ${title} action.`);
@@ -155,7 +155,6 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
-        ui.notifications.info("Camera position action added to the cutscene.");
       }
     );
   }  
@@ -193,7 +192,6 @@ function addCameraPositionAction() {
             }
           })();
         `);
-        ui.notifications.info("Scene switch action added to the cutscene script.");
       }
     );
   }  
@@ -269,7 +267,6 @@ function addCameraPositionAction() {
           `;
         }
         cutsceneActions.push(tokenMovementScript.trim());
-        ui.notifications.info(`Token ${teleport ? "teleport" : "movement"} action added to the cutscene.`);
       }
     );
   }
@@ -300,7 +297,6 @@ function addCameraPositionAction() {
         }
       })();
     `);
-    ui.notifications.info("Token show/hide action added to the cutscene script.");
     openInitialDialog();
   }
 
@@ -344,7 +340,6 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
-        ui.notifications.info("Chat command action added to the cutscene script.");
       }
     );
   }
@@ -455,7 +450,6 @@ function addCameraPositionAction() {
       `;
   
       cutsceneActions.push(scriptContent);
-      console.log("Conditional branch action added.");
       openInitialDialog();
     }
   
@@ -495,7 +489,6 @@ function addCameraPositionAction() {
             }
           })();
         `.trim());
-        ui.notifications.info("Run Macro action added to the cutscene script.");
       }
     );
   }
@@ -577,7 +570,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Screen flash effect added to the cutscene script.");
       }
     );
   }
@@ -642,7 +634,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Screen shake effect added to the cutscene script.");
       }
     );
   }
@@ -687,7 +678,6 @@ function addScreenFlashAction() {
           })();
         `;
         cutsceneActions.push(tileMovementScript.trim());
-        ui.notifications.info("Tile movement action added to the cutscene.");
       }
     );
   }
@@ -731,7 +721,6 @@ function addScreenFlashAction() {
                 await new Promise(resolve => setTimeout(resolve, 1000));
               })();
             `.trim());
-            ui.notifications.info("Door open/close toggle added to the cutscene script.");
             openInitialDialog();
           }
         },
@@ -756,7 +745,6 @@ function addScreenFlashAction() {
                 }
               })();
             `.trim());
-            ui.notifications.info("Door lock/unlock toggle added to the cutscene script.");
             openInitialDialog();
           }
         },
@@ -806,7 +794,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Light toggle action added to the cutscene script.");
       }
     );
   }
@@ -847,7 +834,6 @@ function addScreenFlashAction() {
               }
             })();
           `);
-          ui.notifications.info("Ambient sound toggle (On/Off) action added to the cutscene script.");
         } else {
           ui.notifications.error("Ambient sound not found with ID: " + soundId);
         }
@@ -911,7 +897,6 @@ function addScreenFlashAction() {
             }
           ]);
         `);
-        ui.notifications.info("Weather effect added to the cutscene script.");
       }
     );
   }
@@ -958,7 +943,6 @@ function addScreenFlashAction() {
               }
             })();
           `);
-          ui.notifications.info("Image display action added to the cutscene script.");
         } else {
           ui.notifications.warn("No URL provided. Action not added.");
         }
@@ -1033,7 +1017,6 @@ function addScreenFlashAction() {
         }
   
         cutsceneActions.push(sequencerScript);
-        ui.notifications.info("Animation action added to the cutscene script.");
       }
     );
   }  
@@ -1073,7 +1056,6 @@ function addScreenFlashAction() {
             }
           })();
         `.trim());
-        ui.notifications.info("Sound play action added to the cutscene script.");
       }
     );
   }
@@ -1122,7 +1104,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Playlist action (stop all and play) added to the cutscene script.");
       }
     );
   }
@@ -1162,7 +1143,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Fade-out effect added to the cutscene script.");
       }
     );
   }
@@ -1202,7 +1182,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Fade-in effect added to the cutscene script.");
       }
     );
   }
@@ -1246,7 +1225,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("UI hide action added to the cutscene script.");
       }
     );
   }
@@ -1290,7 +1268,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("UI show action added to the cutscene script.");
       }
     );
   }
@@ -1363,7 +1340,6 @@ function addScreenFlashAction() {
             }
           })();
         `);
-        ui.notifications.info("Room Key added to the cutscene script.");
       }
     );
   }
