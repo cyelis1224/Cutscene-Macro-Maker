@@ -139,7 +139,7 @@ const openInitialDialog = () => {
   d.render(true);
 };
 
-const addCameraPositionAction = (existingAction = null) => {
+const addCameraPositionAction = (existingAction = null, copiedParams = null) => {
   console.log("Add Camera Position Action");
   const action = existingAction || {};
   let currentX, currentY, currentZoom;
@@ -151,7 +151,13 @@ const addCameraPositionAction = (existingAction = null) => {
     currentZoom = viewPosition.scale;
   };
 
-  updateCurrentPosition();
+  if (!copiedParams) {
+    updateCurrentPosition();
+  } else {
+    currentX = copiedParams.x;
+    currentY = copiedParams.y;
+    currentZoom = copiedParams.scale;
+  }
 
   const dialog = new Dialog({
     title: "Camera Position Action",
@@ -182,14 +188,7 @@ const addCameraPositionAction = (existingAction = null) => {
         label: "Copy Current Screen Position",
         callback: () => {
           updateCurrentPosition();
-          addCameraPositionAction({
-            params: {
-              x: currentX,
-              y: currentY,
-              scale: currentZoom,
-              duration: parseInt(dialog.element.find("#panDuration").val())
-            }
-          });
+          addCameraPositionAction(existingAction, { x: currentX, y: currentY, scale: currentZoom, duration: parseInt(dialog.element.find("#panDuration").val()) });
         }
       },
       ok: {
@@ -207,6 +206,7 @@ const addCameraPositionAction = (existingAction = null) => {
             cutsceneActions.push({ id: actionId, description: `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`, type: "camera", params });
           }
           updateActionList();
+          outputCutsceneScript(); // Ensure it goes back to the output dialog
         }
       },
       cancel: {
