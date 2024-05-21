@@ -25,7 +25,7 @@ The Cutscene Macro Maker (CMM) is a tool designed for Game Masters using Foundry
 - **Playlist Control**: Change the background music playlist to match the mood.
 - **Fade In/Out**: Gradually fade the screen to or from black for transitions.
 - **UI Control**: Hide or show the UI for an immersive experience.
-- **Weather/Particle Effects**: Simulate weather or special particle effects.
+- **Weather/Particle Effects**: Simulate weather or special particle effects. (Requires the FXMaster Module)
 - **Location Banner**: Display a location banner or room key for new scene introductions.
 - **Run Macro**: Execute other macros as part of the cutscene.
 - **Wait**: Add pauses or delays between actions for timing control.
