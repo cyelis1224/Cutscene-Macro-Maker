@@ -149,10 +149,9 @@ const addCameraPositionAction = (existingAction = null) => {
     currentX = viewPosition.x;
     currentY = viewPosition.y;
     currentZoom = viewPosition.scale;
-    $("#cameraX").val(currentX);
-    $("#cameraY").val(currentY);
-    $("#cameraZoom").val(currentZoom);
   };
+
+  updateCurrentPosition();
 
   const dialog = new Dialog({
     title: "Camera Position Action",
@@ -160,15 +159,15 @@ const addCameraPositionAction = (existingAction = null) => {
       <form>
         <div class="form-group">
           <label for="cameraX">Camera X:</label>
-          <input type="number" id="cameraX" name="cameraX" value="${action.params ? action.params.x : ''}" style="width: 100%;">
+          <input type="number" id="cameraX" name="cameraX" value="${action.params ? action.params.x : currentX}" style="width: 100%;">
         </div>
         <div class="form-group">
           <label for="cameraY">Camera Y:</label>
-          <input type="number" id="cameraY" name="cameraY" value="${action.params ? action.params.y : ''}" style="width: 100%;">
+          <input type="number" id="cameraY" name="cameraY" value="${action.params ? action.params.y : currentY}" style="width: 100%;">
         </div>
         <div class="form-group">
           <label for="cameraZoom">Zoom Level:</label>
-          <input type="number" id="cameraZoom" name="cameraZoom" value="${action.params ? action.params.scale : ''}" step="0.1" style="width: 100%;">
+          <input type="number" id="cameraZoom" name="cameraZoom" value="${action.params ? action.params.scale : currentZoom}" step="0.1" style="width: 100%;">
         </div>
         <div class="form-group">
           <label for="panDuration">Pan Duration (in milliseconds):</label>
@@ -183,7 +182,14 @@ const addCameraPositionAction = (existingAction = null) => {
         label: "Copy Current Screen Position",
         callback: () => {
           updateCurrentPosition();
-          return false; // Prevent the dialog from closing
+          addCameraPositionAction({
+            params: {
+              x: currentX,
+              y: currentY,
+              scale: currentZoom,
+              duration: parseInt(dialog.element.find("#panDuration").val())
+            }
+          });
         }
       },
       ok: {
@@ -221,15 +227,6 @@ const addCameraPositionAction = (existingAction = null) => {
   });
 
   dialog.render(true);
-
-  // Adding custom click event for "Copy Current Screen Position" button
-  setTimeout(() => {
-    const copyButton = dialog.element.find('button:contains("Copy Current Screen Position")');
-    copyButton.click((e) => {
-      e.preventDefault(); // Prevent the default behavior
-      updateCurrentPosition();
-    });
-  }, 100);
 };
 
 const addSwitchSceneAction = (existingAction = null) => {
