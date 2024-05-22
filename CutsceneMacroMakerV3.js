@@ -95,7 +95,7 @@ const openInitialDialog = () => {
         "Fade Out", "Fade In", "Hide UI", "Show UI",
         "Weather/Particle Effects", "Location Banner", */"Run Macro", "Wait", "Image Display"
       ].map(action => `<div class="cutscene-maker-button" id="${action.replace(/ /g, '')}Button">${action}</div>`).join('')}
-      <div class="cutscene-maker-finish" id="finishButton">Export Macro</div>
+      <div class="cutscene-maker-finish" id="finishButton">Edit Current Sequence</div>
     </div>
   `;
 
@@ -634,7 +634,14 @@ const outputCutsceneScript = () => {
                 }
               }
             },
-            default: "close"
+            default: "close",
+            render: html => {
+              setTimeout(() => {
+                const dialogElement = html.closest(".window-app");
+                dialogElement.style.top = "25vh";
+                dialogElement.style.left = "75vw";
+              }, 0);
+            }
           }).render(true);
         }
       }
@@ -642,9 +649,9 @@ const outputCutsceneScript = () => {
     id: "cutsceneScriptOutputDialog", // Ensure this ID matches the filter condition
     render: html => {
       setTimeout(() => {
-        const dialogElement = document.querySelector(`[id="cutsceneScriptOutputDialog"]`);
-        dialogElement.style.top = initialDialogPosition.top;
-        dialogElement.style.left = initialDialogPosition.left;
+        const dialogElement = html.closest(".window-app");
+        dialogElement.style.top = "25vh";
+        dialogElement.style.left = "75vw";
       }, 0);
       updateActionList();
     }
