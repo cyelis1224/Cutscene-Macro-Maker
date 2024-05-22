@@ -50,6 +50,7 @@ const addDialogAction = (title, content, callback, isEditing = false) => {
         callback: html => {
           callback(html);
           if (!isEditing) {
+            console.log("Calling outputCutsceneScript from addDialogAction OK button");
             outputCutsceneScript();
           }
         }
@@ -60,6 +61,7 @@ const addDialogAction = (title, content, callback, isEditing = false) => {
           if (typeof callback === 'function' && callback.name === 'openInitialDialog') {
             openInitialDialog();
           } else if (!isEditing) {
+            console.log("Calling outputCutsceneScript from addDialogAction Cancel button");
             outputCutsceneScript();
           }
         }
@@ -105,7 +107,7 @@ const openInitialDialog = () => {
         "Camera", "Switch Scene", "Token Movement", /*"Show/Hide Token",
         "Chat", "Conditional Branch", */"Screen Flash", "Screen Shake", /*
         "Tile Movement", "Door State", "Light State", "Ambient Sound State",
-        "Show Image", "Play Animation", "Play Sound", "Change Playlist",
+        "Show Image", */"Play Animation", /*"Play Sound", "Change Playlist",
         "Fade Out", "Fade In", "Hide UI", "Show UI",
         "Weather/Particle Effects", "Location Banner", */"Run Macro", "Wait", "Image Display"
       ].map(action => `<div class="cutscene-maker-button" id="${action.replace(/ /g, '')}Button">${action}</div>`).join('')}
@@ -135,6 +137,7 @@ const openInitialDialog = () => {
         { id: "RunMacroButton", action: addRunMacroAction },
         { id: "WaitButton", action: addWaitAction },
         { id: "ImageDisplayButton", action: addImageDisplayAction },
+        { id: "PlayAnimationButton", action: addAnimationAction },
         { id: "finishButton", action: outputCutsceneScript }
       ];
 
@@ -221,6 +224,7 @@ const addCameraPositionAction = (existingAction = null, copiedParams = null) => 
             cutsceneActions.push({ id: actionId, description: `Camera Position (X: ${x}, Y: ${y}, Zoom: ${scale}, Duration: ${duration}ms)`, type: "camera", params });
           }
           updateActionList();
+          console.log("Calling outputCutsceneScript from addCameraPositionAction OK button");
           outputCutsceneScript(); // Ensure it goes back to the output dialog
         }
       },
@@ -492,6 +496,108 @@ const addImageDisplayAction = () => {
   );
 };
 
+const addAnimationAction = (existingAction = null) => {
+  console.log("Add Animation Action");
+  if (canvas.tokens.controlled.length === 0) {
+    ui.notifications.warn("Please select a token.");
+    openInitialDialog();
+    return;
+  }
+  const sourceToken = canvas.tokens.controlled[0];
+  let targetedTokens = Array.from(game.user.targets);
+  let targetToken = targetedTokens.length > 0 ? targetedTokens[0] : null;
+
+  const action = existingAction || {};
+  const dialog = new Dialog({
+    title: "Add Animation",
+    content: `
+      <form>
+        <div class="form-group">
+          <label for="animationUrl">Animation URL:</label>
+          <input type="text" id="animationUrl" name="animationUrl" value="${action.params ? action.params.animationUrl : ''}" placeholder="https://example.com/animation.webm" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label for="scale">Scale:</label>
+          <input type="number" id="scale" name="scale" value="${action.params ? action.params.scale : 1}" step="0.1" min="0.1" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label for="rotation">Rotation (degrees):</label>
+          <input type="number" id="rotation" name="rotation" value="${action.params ? action.params.rotation : 0}" step="1" style="width: 100%;">
+        </div>
+        <div class="form-group">
+          <label for="duration">Duration (ms):</label>
+          <input type="number" id="duration" name="duration" value="${action.params ? action.params.duration : 1000}" step="100" min="100" style="width: 100%;">
+        </div>
+      </form>
+    `,
+    buttons: {
+      ok: {
+        label: "OK",
+        callback: html => {
+          const animationUrl = html.find("#animationUrl").val();
+          const scale = parseFloat(html.find("#scale").val());
+          const rotation = parseInt(html.find("#rotation").val());
+          const duration = parseInt(html.find("#duration").val());
+          let sequencerScript = `
+            // Animation Action
+            // This script plays an animation from the specified URL. It either attaches the animation to a target token
+            // or stretches the animation from the selected token to a target token, depending on the presence of a target token.
+            new Sequence()`;
+
+          if (targetToken) {
+            sequencerScript += `
+              // Stretch the animation from the selected token to the target token.
+              .effect()
+              .file("${animationUrl}") // URL of the animation file
+              .attachTo(canvas.tokens.get("${sourceToken.id}")) // Attach the animation to the selected token
+              .stretchTo(canvas.tokens.get("${targetToken.id}")) // Stretch the animation to the target token
+              .scale(${scale}) // Scale of the animation
+              .rotate(${rotation}) // Rotation of the animation in degrees
+              .duration(${duration}) // Duration of the animation in milliseconds
+              .play();`;
+          } else {
+            sequencerScript += `
+              // Play the animation at the location of the selected token.
+              .effect()
+              .file("${animationUrl}") // URL of the animation file
+              .atLocation(canvas.tokens.get("${sourceToken.id}")) // Play the animation at the selected token's location
+              .scale(${scale}) // Scale of the animation
+              .rotate(${rotation}) // Rotation of the animation in degrees
+              .duration(${duration}) // Duration of the animation in milliseconds
+              .play();`;
+          }
+
+          const params = { animationUrl, scale, rotation, duration, sourceTokenId: sourceToken.id, targetTokenId: targetToken ? targetToken.id : null };
+          if (existingAction) {
+            updateAction(existingAction.id, params, `Play Animation (URL: ${animationUrl}, Scale: ${scale}, Rotation: ${rotation}, Duration: ${duration}ms)`, true);
+          } else {
+            const actionId = generateUniqueId();
+            cutsceneActions.push({ id: actionId, description: `Play Animation (URL: ${animationUrl}, Scale: ${scale}, Rotation: ${rotation}, Duration: ${duration}ms)`, type: "animation", params });
+          }
+          updateActionList();
+          outputCutsceneScript(); // Ensure it goes back to the output dialog
+        }
+      },
+      cancel: {
+        label: "Cancel",
+        callback: () => {
+          openInitialDialog();
+        }
+      }
+    },
+    default: "ok",
+    render: html => {
+      console.log("Dialog rendered: Add Animation");
+      setTimeout(() => {
+        dialog.element[0].style.top = initialDialogPosition.top;
+        dialog.element[0].style.left = initialDialogPosition.left;
+      }, 0);
+    }
+  });
+
+  dialog.render(true);
+};
+
 const updateActionList = () => {
   console.log("Updating action list");
   const actionList = $("#actionList");
@@ -500,7 +606,7 @@ const updateActionList = () => {
     actionList.append(`
       <li id="${action.id}" class="ui-state-default" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 4px;">
         <span class="drag-handle" style="cursor: move; margin-right: 10px;">&#9776;</span>
-        <span style="flex-grow: 1;">${action.description}</span>
+        <span style="flex-grow: 1; max-width: 200px; overflow: overlay;">${action.description}</span>
         <span style="display: flex; gap: 5px;">
           <button class="edit-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Edit</button>
           <button class="remove-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Remove</button>
@@ -539,6 +645,9 @@ const updateActionList = () => {
         case "imageDisplay":
           addImageDisplayAction(action);
           break;
+        case "animation":
+          addAnimationAction(action);
+          break;
         default:
           break;
       }
@@ -563,18 +672,21 @@ const updateActionList = () => {
   actionList.disableSelection();
 };
 
+
 const removeAction = actionId => {
   cutsceneActions = cutsceneActions.filter(action => action.id !== actionId);
   updateActionList();
 };
 
-const updateAction = (actionId, params, description) => {
+const updateAction = (actionId, params, description, skipOutput = false) => {
   const actionIndex = cutsceneActions.findIndex(action => action.id === actionId);
   if (actionIndex !== -1) {
     cutsceneActions[actionIndex].params = params;
     cutsceneActions[actionIndex].description = description;
     updateActionList();
-    outputCutsceneScript();
+    if (!skipOutput) {
+      outputCutsceneScript();
+    }
   }
 };
 
@@ -655,8 +767,9 @@ const outputCutsceneScript = () => {
             default: "close",
             render: html => {
               setTimeout(() => {
-                dialog.element[0].style.top = initialDialogPosition.top;
-                dialog.element[0].style.left = initialDialogPosition.left;
+                const dialogElement = html.closest(".window-app");
+                dialogElement.style.top = "25vh";
+                dialogElement.style.left = "75vw";
               }, 0);
             }
           }).render(true);
@@ -845,8 +958,37 @@ const generateScript = (type, params) => {
           }
         })();
       `;
-    default:
-      return "// Unknown Action";
+      case "animation":
+        return params.targetTokenId
+          ? `
+            // Animation Action
+            // This script plays an animation from the specified URL. It either attaches the animation to a target token
+            // or stretches the animation from the selected token to a target token, depending on the presence of a target token.
+            new Sequence()
+              .effect()
+              .file("${params.animationUrl}") // URL of the animation file
+              .attachTo(canvas.tokens.get("${params.sourceTokenId}")) // Attach the animation to the selected token
+              .stretchTo(canvas.tokens.get("${params.targetTokenId}")) // Stretch the animation to the target token
+              .scale(${params.scale}) // Scale of the animation
+              .rotate(${params.rotation}) // Rotation of the animation in degrees
+              .duration(${params.duration}) // Duration of the animation in milliseconds
+              .play();
+          `
+          : `
+            // Animation Action
+            // Play the animation at the location of the selected token.
+            new Sequence()
+              .effect()
+              .file("${params.animationUrl}") // URL of the animation file
+              .atLocation(canvas.tokens.get("${params.sourceTokenId}")) // Play the animation at the selected token's location
+              .scale(${params.scale}) // Scale of the animation
+              .rotate(${params.rotation}) // Rotation of the animation in degrees
+              .duration(${params.duration}) // Duration of the animation in milliseconds
+              .play();
+          `;
+      // Add more cases for other action types here as needed
+      default:
+        return "// Unknown Action";
   }
 };
 
@@ -859,6 +1001,7 @@ const parseActionType = script => {
   if (script.includes("flashEffect")) return "screenFlash";
   if (script.includes("game.macros.find")) return "runMacro";
   if (script.includes("new ImagePopout")) return "imageDisplay";
+  if (script.includes("new Sequence()")) return "animation";
   return "unknown";
 };
 
@@ -900,6 +1043,15 @@ const parseParamsFromScript = (script, type) => {
     case "imageDisplay":
       params.imageUrl = script.match(/src="(.+?)"/)[1];
       break;
+    case "animation":
+      params.animationUrl = script.match(/file\("(.+?)"\)/)[1];
+      params.scale = parseFloat(script.match(/scale\((\d+(\.\d+)?)\)/)[1]);
+      params.rotation = parseFloat(script.match(/rotate\((\d+)\)/)[1]);
+      params.duration = parseInt(script.match(/duration\((\d+)\)/)[1]);
+      params.sourceTokenId = script.match(/attachTo\(canvas.tokens.get\("(.+?)"\)\)/) ? script.match(/attachTo\(canvas.tokens.get\("(.+?)"\)\)/)[1] : script.match(/atLocation\(canvas.tokens.get\("(.+?)"\)\)/)[1];
+      params.targetTokenId = script.match(/stretchTo\(canvas.tokens.get\("(.+?)"\)\)/) ? script.match(/stretchTo\(canvas.tokens.get\("(.+?)"\)\)/)[1] : null;
+      break;
+    // Add more cases for other action types here as needed
     default:
       break;
   }
@@ -929,6 +1081,9 @@ const generateDescription = (type, script) => {
       return `Run Macro: ${params.macroName}`;
     case "imageDisplay":
       return `Display Image: ${params.imageUrl}`;
+    case "animation":
+      return `Play Animation (URL: ${params.animationUrl}, Scale: ${params.scale}, Rotation: ${params.rotation}, Duration: ${params.duration}ms)`;
+      // Add more cases for other action types here as needed
     default:
       return "Unknown Action";
   }
