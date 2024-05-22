@@ -606,7 +606,7 @@ const updateActionList = () => {
     actionList.append(`
       <li id="${action.id}" class="ui-state-default" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 4px;">
         <span class="drag-handle" style="cursor: move; margin-right: 10px;">&#9776;</span>
-        <span style="flex-grow: 1; max-width: 200px; overflow: overlay;">${action.description}</span>
+        <span style="flex-grow: 1; max-width: 200px; max-height: 80px; overflow: overlay;">${action.description}</span>
         <span style="display: flex; gap: 5px;">
           <button class="edit-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Edit</button>
           <button class="remove-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Remove</button>
