@@ -1,6 +1,7 @@
 let cutsceneActions = [];
 let actionCounter = 0;
 let initialDialogPosition = { top: "25vh", left: "75vw" };
+let outputDialogPosition = { top: "25vh", left: "75vw" };
 
 const generateUniqueId = () => `action-${actionCounter++}`;
 
@@ -25,6 +26,19 @@ loadScript("https://code.jquery.com/ui/1.12.1/jquery-ui.js", () => {
   console.log("jQuery UI loaded");
   initializeCutsceneMacroMaker();
 });
+
+const addStylesForDialog = () => {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .window-app[style*="25vh"][style*="75vw"] {
+      top: 25vh !important;
+      left: 60vw !important;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
+addStylesForDialog();
 
 const addDialogAction = (title, content, callback, isEditing = false) => {
   const dialog = new Dialog({
@@ -484,10 +498,13 @@ const updateActionList = () => {
   actionList.empty();
   cutsceneActions.forEach(action => {
     actionList.append(`
-      <li id="${action.id}" class="ui-state-default">
-        ${action.description}
-        <button class="edit-button" data-id="${action.id}">Edit</button>
-        <button class="remove-button" data-id="${action.id}">Remove</button>
+      <li id="${action.id}" class="ui-state-default" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 4px;">
+        <span class="drag-handle" style="cursor: move; margin-right: 10px;">&#9776;</span>
+        <span style="flex-grow: 1;">${action.description}</span>
+        <span style="display: flex; gap: 5px;">
+          <button class="edit-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Edit</button>
+          <button class="remove-button" data-id="${action.id}" style="min-width: 60px; max-width: 60px;">Remove</button>
+        </span>
       </li>
     `);
   });
@@ -535,6 +552,7 @@ const updateActionList = () => {
 
   if (!actionList.data('ui-sortable')) {
     actionList.sortable({
+      handle: '.drag-handle',
       update: function(event, ui) {
         const newOrder = $(this).sortable("toArray");
         const reorderedActions = newOrder.map(id => cutsceneActions.find(action => action.id === id));
@@ -637,9 +655,8 @@ const outputCutsceneScript = () => {
             default: "close",
             render: html => {
               setTimeout(() => {
-                const dialogElement = html.closest(".window-app");
-                dialogElement.style.top = "25vh";
-                dialogElement.style.left = "75vw";
+                dialog.element[0].style.top = initialDialogPosition.top;
+                dialog.element[0].style.left = initialDialogPosition.left;
               }, 0);
             }
           }).render(true);
