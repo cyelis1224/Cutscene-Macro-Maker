@@ -187,9 +187,9 @@ const addCameraPositionAction = (existingAction = null, copiedParams = null) => 
       copy: {
         icon: '<i class="fas fa-copy"></i>',
         label: "Copy Current Screen Position",
-        callback: () => {
+        callback: html => {
           updateCurrentPosition();
-          addCameraPositionAction(existingAction, { x: currentX, y: currentY, scale: currentZoom, duration: parseInt(dialog.element.find("#panDuration").val()) });
+          addCameraPositionAction(existingAction, { x: currentX, y: currentY, scale: currentZoom, duration: parseInt(html.find("#panDuration").val()) });
         }
       },
       ok: {
@@ -810,23 +810,12 @@ const generateScript = (type, params) => {
         // Image Display Action
         (async function() {
           try {
-            new Dialog({
+            const popout = new ImagePopout("${params.imageUrl}", {
               title: "Image Display",
-              content: \`
-                <div style="text-align: center;">
-                  <img src="${params.imageUrl}" style="border: 0; width: auto; height: auto; max-width: 100%; max-height: 400px;" />
-                </div>\`,
-              buttons: {
-                close: {
-                  label: "Close",
-                  callback: () => {}
-                }
-              },
-              default: "close",
-              render: html => {
-                console.log("Displaying image to all players.");
-              }
-            }).render(true);
+              shareable: true
+            });
+            popout.render(true);
+            popout.shareImage();
           } catch (error) {
             console.error("Error in image display action:", error);
           }
@@ -845,7 +834,7 @@ const parseActionType = script => {
   if (script.includes("shakeScreen")) return "screenShake";
   if (script.includes("flashEffect")) return "screenFlash";
   if (script.includes("game.macros.find")) return "runMacro";
-  if (script.includes("new Dialog({title: \"Image Display\"")) return "imageDisplay";
+  if (script.includes("new ImagePopout")) return "imageDisplay";
   return "unknown";
 };
 
